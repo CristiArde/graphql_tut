@@ -87,10 +87,12 @@ app.use('/graphql',
                     title: args.eventInput.title,
                     description: args.eventInput.description,
                     price: +args.eventInput.price,
-                    date: new Date(args.eventInput.date)
+                    date: new Date(args.eventInput.date),
+                    creator: '5d76b769321ecb123c060fa5'
                 });
                //need to return for grapqhQL to run asynchronously
                return event.save().then(result => {
+                   User.findById('5d76b769321ecb123c060fa5')
                     console.log(result);
                    //need to return the event because graphQl createEvent needs a return event
                     return {...result._doc};
@@ -133,4 +135,4 @@ mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PA
     console.log(err);
 });
 
-
+part 6 20min;
