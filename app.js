@@ -21,6 +21,16 @@ const events = [];
 
 app.use(bodyParser.json());
 
+const user = userId => {
+  return User.findById(userId).then(
+      user => {
+          return {...user._doc, _id : user.id};
+      }
+  ).catch(err=> {
+      throw err;
+  })
+};
+
 //explanation
 //https://www.youtube.com/watch?v=LXTyzk2uud0&list=PL55RiY5tL51rG1x02Yyj93iypUuHYXcB_&index=4&t=520s
 //defining graph ql standards
@@ -33,12 +43,14 @@ app.use('/graphql',
                 description: String!
                 price: Float!
                 date: String!
+                creator: User!
             }
             
             type User {
                 _id: ID!
                 email: String!
                 password: String
+                createdEvents: [Event!]
             }
             
             input UserInput {
@@ -74,7 +86,9 @@ app.use('/graphql',
                 return Event.find()
                     .then(events => {
                          return events.map(event => {
-                            return { ...event._doc, _id: event._doc._id.toString() };
+                            return { ...event._doc,
+                                _id: event.id,
+                            creator: user.bind(this, event._doc.creator)};
                          });
                     })
                     .catch( err => {
@@ -143,3 +157,4 @@ mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PA
     console.log(err);
 });
 
+part 7 10 min
