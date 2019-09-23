@@ -17,14 +17,31 @@ const User = require('./models/user');
 
 const app = express();
 
-const events = [];
+const events = eventIds => {
+  return Event.find({_id: {$in: eventIds}})
+      .then( events =>{
+          return events.map(event => {
+              return {
+                  ...event._doc,
+                  _id:event.id,
+                  creator: user.bind(this,event.creator)}
+          })
+      })
+      .catch(err => {
+      throw err;
+  })
+};
 
 app.use(bodyParser.json());
 
 const user = userId => {
   return User.findById(userId).then(
       user => {
-          return {...user._doc, _id : user.id};
+          return {
+              ...user._doc,
+              _id : user.id,
+              createdEvents: events.bind(this, user._doc.createdEvents)
+          };
       }
   ).catch(err=> {
       throw err;
@@ -107,7 +124,11 @@ app.use('/graphql',
                //need to return for grapqhQL to run asynchronously
                 let createdEvent;
                 return event.save().then(result => {
-                    createdEvent = { ...result._doc, _id: result._doc._id.toString() };
+                    createdEvent = {
+                        ...result._doc,
+                        _id: result._doc._id.toString(),
+                        creator: user.bind(this, result._doc.creator
+                        )};
                     return User.findById('5d76b769321ecb123c060fa5')
                     console.log(result);
                    //need to return the event because graphQl createEvent needs a return event
@@ -157,4 +178,3 @@ mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PA
     console.log(err);
 });
 
-part 7 10 min
